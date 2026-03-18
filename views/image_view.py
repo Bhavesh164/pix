@@ -84,6 +84,7 @@ class ImageView(tk.Frame):
         self.bind("a", lambda e: self._pan(-50, 0))
         self.bind("s", lambda e: self._pan(0, 50))
         self.bind("d", lambda e: self._pan(50, 0))
+        self.bind("W", lambda e: self.app.set_wallpaper(self.image_path))
         self.bind("?", lambda e: self._show_help())
         self.bind("/", lambda e: self._show_search())
         

@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 from core.image_loader import ImageLoader
 from core.thumb_cache import ThumbCache
+from core.wallpaper import set_wallpaper
 from views.thumbnail_view import ThumbnailView
 from views.image_view import ImageView
 
@@ -69,5 +70,27 @@ class PixApp:
         self.active_view.pack(fill=tk.BOTH, expand=True)
         self.active_view.focus_set()
         
+    def set_wallpaper(self, image_path):
+        """Set the desktop wallpaper cross-platform and show a brief toast."""
+        success, message = set_wallpaper(image_path)
+        self._show_toast(message)
+
+    def _show_toast(self, message, duration_ms=2500):
+        """Show a transient status message in the bottom-right corner."""
+        toast = tk.Label(
+            self.root,
+            text=f"  {message}  ",
+            bg='#1a1a1a', fg='white',
+            font=("Courier", 12),
+            relief='flat',
+            padx=8, pady=6,
+            highlightbackground='#444',
+            highlightthickness=1,
+        )
+        sw = self.root.winfo_screenwidth()
+        sh = self.root.winfo_screenheight()
+        toast.place(x=sw - 20, y=sh - 20, anchor='se')
+        self.root.after(duration_ms, toast.destroy)
+
     def quit(self):
         self.root.quit()

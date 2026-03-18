@@ -117,6 +117,7 @@ class ThumbnailView(tk.Frame):
         self.bind("<Control-u>", lambda e: self._move_page(down=False, half=True))
         self.bind("G", lambda e: self._go_extreme(bottom=True))
         self.bind("g", self._on_g)
+        self.bind("w", lambda e: self._set_wallpaper())
         
         self.bind("<MouseWheel>", self._on_mousewheel)
         self.bind("<Button-4>", self._on_mousewheel)
@@ -150,6 +151,10 @@ class ThumbnailView(tk.Frame):
             
     def _clear_g(self):
         self.pending_g = False
+
+    def _set_wallpaper(self):
+        image_path = self.images[self.selected_index]
+        self.app.set_wallpaper(image_path)
 
     def _show_help(self):
         from overlays.help_overlay import HelpOverlay

@@ -5,23 +5,25 @@ class HelpOverlay(tk.Frame):
         super().__init__(parent, bg='black', highlightbackground="white", highlightcolor="white", highlightthickness=1)
         
         text = """
-╔─── keybindings ─────────────╗
-│  GRID VIEW                  │
-│  h j k l   navigate         │
-│  Enter     open image       │
-│  Space     select           │
-│  d         delete selected  │
-│  /         search           │
-│                             │
-│  IMAGE VIEW                 │
-│  q         back to grid     │
-│  i o       zoom in/out      │
-│  u         reset zoom       │
-│  w a s d   pan image (zoom) │
-│  h l       prev/next        │
-│                             │
-│            Esc to close     │
-╚─────────────────────────────╝
+╔─── keybindings ──────────────────╗
+│  GRID VIEW                       │
+│  h j k l   navigate              │
+│  Enter     open image            │
+│  Space     select                │
+│  d         delete selected       │
+│  /         search                │
+│  w         set as wallpaper      │
+│                                  │
+│  IMAGE VIEW                      │
+│  q         back to grid          │
+│  i o       zoom in/out           │
+│  u         reset zoom            │
+│  w a s d   pan image (zoom)      │
+│  h l       prev/next             │
+│  W         set as wallpaper      │
+│                                  │
+│                   Esc to close   │
+╚──────────────────────────────────╝
 """
         lbl = tk.Label(self, text=text.strip(), bg='black', fg='white', font=("Courier", 12), justify=tk.LEFT)
         lbl.pack(padx=20, pady=20)
