@@ -71,26 +71,30 @@ class ImageView(tk.Frame):
 
     def _bind_keys(self):
         self.focus_set()
-        self.bind("q", lambda e: self.app.switch_to_thumbnail_view() if not self.app.is_single_image else self.app.quit())
-        self.bind("<Escape>", lambda e: self.app.switch_to_thumbnail_view() if not self.app.is_single_image else self.app.quit())
-        self.bind("l", lambda e: self._move(1))
-        self.bind("h", lambda e: self._move(-1))
-        self.bind("<Right>", lambda e: self._move(1))
-        self.bind("<Left>", lambda e: self._move(-1))
-        self.bind("i", lambda e: self._change_zoom(0.1)) # i key
-        self.bind("o", lambda e: self._change_zoom(-0.1)) # o key
-        self.bind("u", lambda e: self._reset_zoom())
-        self.bind("w", lambda e: self._pan(0, -50))
-        self.bind("a", lambda e: self._pan(-50, 0))
-        self.bind("s", lambda e: self._pan(0, 50))
-        self.bind("d", lambda e: self._pan(50, 0))
-        self.bind("<Up>", lambda e: self._pan(0, -50))
-        self.bind("<Down>", lambda e: self._pan(0, 50))
-        self.bind("b", lambda e: self.app.set_wallpaper(self.image_path))
-        self.bind("?", lambda e: self._show_help())
-        self.bind("/", lambda e: self._show_search())
-        self.bind("c", lambda e: self.app.clear_cache())
-        self.bind("C", lambda e: self.app.clear_cache())
+        self._bind_shortcut("q", lambda e: self.app.switch_to_thumbnail_view() if not self.app.is_single_image else self.app.quit())
+        self._bind_shortcut("<Escape>", lambda e: self.app.switch_to_thumbnail_view() if not self.app.is_single_image else self.app.quit())
+        self._bind_shortcut("l", lambda e: self._move(1))
+        self._bind_shortcut("h", lambda e: self._move(-1))
+        self._bind_shortcut("<Right>", lambda e: self._move(1))
+        self._bind_shortcut("<Left>", lambda e: self._move(-1))
+        self._bind_shortcut("i", lambda e: self._change_zoom(0.1))
+        self._bind_shortcut("o", lambda e: self._change_zoom(-0.1))
+        self._bind_shortcut("u", lambda e: self._reset_zoom())
+        self._bind_shortcut("w", lambda e: self._pan(0, -50))
+        self._bind_shortcut("a", lambda e: self._pan(-50, 0))
+        self._bind_shortcut("s", lambda e: self._pan(0, 50))
+        self._bind_shortcut("d", lambda e: self._pan(50, 0))
+        self._bind_shortcut("<Up>", lambda e: self._pan(0, -50))
+        self._bind_shortcut("<Down>", lambda e: self._pan(0, 50))
+        self._bind_shortcut("b", lambda e: self.app.set_wallpaper(self.image_path))
+        self._bind_shortcut("?", lambda e: self._show_help())
+        self._bind_shortcut("/", lambda e: self._show_search())
+        self._bind_shortcut("c", lambda e: self.app.clear_cache())
+        self._bind_shortcut("C", lambda e: self.app.clear_cache())
+
+    def _bind_shortcut(self, sequence, handler):
+        self.bind(sequence, handler)
+        self.canvas.bind(sequence, handler)
         
     def _show_help(self):
         from overlays.help_overlay import HelpOverlay

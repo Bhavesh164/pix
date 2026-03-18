@@ -21,8 +21,9 @@ def main():
 
     if args.clear_cache:
         cache_base = target_path if target_path.is_dir() else target_path.parent
-        removed = ThumbCache(cache_base).clear(recursive=args.recursive)
-        print(format_clear_message(removed, cache_base))
+        cache = ThumbCache(cache_base)
+        removed = cache.clear(recursive=args.recursive)
+        print(format_clear_message(removed, cache_base, cache.cache_dir))
         sys.exit(0)
 
     if args.set_wallpaper:

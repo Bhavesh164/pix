@@ -97,33 +97,39 @@ class ThumbnailView(tk.Frame):
             
     def _bind_keys(self):
         self.focus_set()
-        self.bind("<Right>", lambda e: self._move(1))
-        self.bind("<Left>", lambda e: self._move(-1))
-        self.bind("<Down>", lambda e: self._move(self.cols))
-        self.bind("<Up>", lambda e: self._move(-self.cols))
-        self.bind("l", lambda e: self._move(1))
-        self.bind("h", lambda e: self._move(-1))
-        self.bind("j", lambda e: self._move(self.cols))
-        self.bind("k", lambda e: self._move(-self.cols))
-        self.bind("<Return>", lambda e: self._open_image())
-        self.bind("<space>", lambda e: self._toggle_select())
-        self.bind("V", lambda e: self._select_all())
-        self.bind("d", lambda e: self._delete_selected())
-        self.bind("q", lambda e: self.app.quit())
-        self.bind("<Escape>", lambda e: self.app.quit())
-        self.bind("?", lambda e: self._show_help())
-        self.bind("/", lambda e: self._show_search())
-        self.bind("c", lambda e: self.app.clear_cache())
-        self.bind("C", lambda e: self.app.clear_cache())
-        self.bind("<Control-d>", lambda e: self._move_page(down=True, half=True))
-        self.bind("<Control-u>", lambda e: self._move_page(down=False, half=True))
-        self.bind("G", lambda e: self._go_extreme(bottom=True))
-        self.bind("g", self._on_g)
-        self.bind("b", lambda e: self._set_wallpaper())
+        self._bind_shortcut("<Right>", lambda e: self._move(1))
+        self._bind_shortcut("<Left>", lambda e: self._move(-1))
+        self._bind_shortcut("<Down>", lambda e: self._move(self.cols))
+        self._bind_shortcut("<Up>", lambda e: self._move(-self.cols))
+        self._bind_shortcut("l", lambda e: self._move(1))
+        self._bind_shortcut("h", lambda e: self._move(-1))
+        self._bind_shortcut("j", lambda e: self._move(self.cols))
+        self._bind_shortcut("k", lambda e: self._move(-self.cols))
+        self._bind_shortcut("<Return>", lambda e: self._open_image())
+        self._bind_shortcut("<space>", lambda e: self._toggle_select())
+        self._bind_shortcut("A", lambda e: self._select_all())
+        self._bind_shortcut("U", lambda e: self._clear_selection())
+        self._bind_shortcut("V", lambda e: self._select_all())
+        self._bind_shortcut("d", lambda e: self._delete_selected())
+        self._bind_shortcut("q", lambda e: self.app.quit())
+        self._bind_shortcut("<Escape>", lambda e: self.app.quit())
+        self._bind_shortcut("?", lambda e: self._show_help())
+        self._bind_shortcut("/", lambda e: self._show_search())
+        self._bind_shortcut("c", lambda e: self.app.clear_cache())
+        self._bind_shortcut("C", lambda e: self.app.clear_cache())
+        self._bind_shortcut("<Control-d>", lambda e: self._move_page(down=True, half=True))
+        self._bind_shortcut("<Control-u>", lambda e: self._move_page(down=False, half=True))
+        self._bind_shortcut("G", lambda e: self._go_extreme(bottom=True))
+        self._bind_shortcut("g", self._on_g)
+        self._bind_shortcut("b", lambda e: self._set_wallpaper())
         
         self.bind("<MouseWheel>", self._on_mousewheel)
         self.bind("<Button-4>", self._on_mousewheel)
         self.bind("<Button-5>", self._on_mousewheel)
+
+    def _bind_shortcut(self, sequence, handler):
+        self.bind(sequence, handler)
+        self.canvas.bind(sequence, handler)
         
     def _on_mousewheel(self, event):
         if hasattr(event, "num") and event.num == 4 or hasattr(event, "delta") and event.delta > 0:
@@ -210,7 +216,14 @@ class ThumbnailView(tk.Frame):
             self.multi_selected.clear()
         else:
             self.multi_selected = set(range(len(self.images)))
-        
+
+        self._refresh_selection_outlines()
+
+    def _clear_selection(self):
+        self.multi_selected.clear()
+        self._refresh_selection_outlines()
+
+    def _refresh_selection_outlines(self):
         for i, item in enumerate(self.items):
             self.canvas.itemconfig(item['rect_id'], outline=self._get_outline_color(i))
 

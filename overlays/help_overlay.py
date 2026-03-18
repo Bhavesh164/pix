@@ -11,6 +11,8 @@ HELP_TEXT = """
 │  h j k l   navigate              │
 │  Enter     open image            │
 │  Space     select                │
+│  A         select all            │
+│  U         deselect all          │
 │  d         delete selected       │
 │  b         set as wallpaper      │
 │                                  │

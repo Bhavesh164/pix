@@ -41,11 +41,14 @@ class ThumbCache:
         return loader.load_images()
 
 
-def format_clear_message(removed_count: int, location: Path | None = None) -> str:
+def format_clear_message(removed_count: int, location: Path | None = None, cache_dir: Path | None = None) -> str:
     noun = "thumbnail" if removed_count == 1 else "thumbnails"
-    if location is None:
-        return f"Cleared {removed_count} cached {noun}."
-    return f"Cleared {removed_count} cached {noun} for {_display_location(location)}."
+    message = f"Cleared {removed_count} cached {noun}."
+    if location is not None:
+        message = f"{message[:-1]} for {_display_location(location)}."
+    if cache_dir is not None:
+        message = f"{message[:-1]} (cache: {_display_location(cache_dir)})."
+    return message
 
 
 def _display_location(path: Path) -> str:

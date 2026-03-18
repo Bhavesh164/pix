@@ -69,9 +69,14 @@ class CacheTests(unittest.TestCase):
 
         self.assertEqual(0, exit_info.exception.code)
         self.assertIn("Cleared 3 cached thumbnails for", stdout.getvalue())
+        self.assertIn("(cache: ~/.cache/pix).", stdout.getvalue())
 
     def test_help_overlay_documents_purge_cache_shortcut(self):
         self.assertIn("│  c / C     purge thumbnail cache │", HELP_TEXT)
+
+    def test_help_overlay_documents_multi_select_shortcuts(self):
+        self.assertIn("│  A         select all            │", HELP_TEXT)
+        self.assertIn("│  U         deselect all          │", HELP_TEXT)
 
     def test_format_clear_message_handles_singular(self):
         self.assertEqual("Cleared 1 cached thumbnail.", format_clear_message(1))
@@ -79,8 +84,8 @@ class CacheTests(unittest.TestCase):
     def test_format_clear_message_includes_location(self):
         location = Path.home() / "photos"
         self.assertEqual(
-            "Cleared 2 cached thumbnails for ~/photos.",
-            format_clear_message(2, location),
+            "Cleared 2 cached thumbnails for ~/photos (cache: ~/.cache/pix).",
+            format_clear_message(2, location, Path.home() / ".cache" / "pix"),
         )
 
 

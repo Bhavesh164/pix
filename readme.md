@@ -138,6 +138,8 @@ Run `pix` from the terminal by passing an image or directory:
 - `h` `j` `k` `l` : Navigate grid (left, down, up, right)
 - `Enter` : Open selected image in full view
 - `Space` : Toggle select image
+- `A` : Select all images
+- `U` : Deselect all images
 - `V` : Select all images
 - `b` : Set the selected image as the desktop wallpaper
 - `d` : Delete selected images (opens confirmation overlay)

@@ -73,7 +73,14 @@ class PixApp:
 
     def clear_cache(self):
         removed = self.thumb_cache.clear(recursive=self.recursive)
-        self._show_toast(format_clear_message(removed, self.thumb_cache.master_path))
+        self._show_toast(
+            format_clear_message(
+                removed,
+                self.thumb_cache.master_path,
+                self.thumb_cache.cache_dir,
+            ),
+            duration_ms=3500,
+        )
 
     def _show_toast(self, message, duration_ms=2500):
         """Show a transient status message in the bottom-right corner."""
