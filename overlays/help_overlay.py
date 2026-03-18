@@ -12,16 +12,16 @@ class HelpOverlay(tk.Frame):
 │  Space     select                │
 │  d         delete selected       │
 │  /         search                │
-│  w         set as wallpaper      │
+│  b, W      set as wallpaper      │
 │                                  │
 │  IMAGE VIEW                      │
 │  q         back to grid          │
 │  i o       zoom in/out           │
 │  u         reset zoom            │
-│  a s d     pan (zoom mode)       │
+│  w a s d   pan image (zoom)      │
 │  ↑ ↓       pan up/down (zoom)    │
 │  h l       prev/next             │
-│  w         set as wallpaper      │
+│  b, W      set as wallpaper      │
 │                                  │
 │                   Esc to close   │
 ╚──────────────────────────────────╝

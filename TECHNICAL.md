@@ -531,12 +531,12 @@ Bindings are `tkinter` event strings:
 
 ### Wallpaper Shortcut
 
-| View           | Key | Behavior                               |
-|----------------|-----|----------------------------------------|
-| Grid View      | `w` | Set focused (highlighted) image as wallpaper |
-| Image View     | `W` | Set currently-displayed image as wallpaper |
+| View           | Key   | Behavior                               |
+|----------------|-------|----------------------------------------|
+| Grid View      | `b/W` | Set focused (highlighted) image as wallpaper |
+| Image View     | `b/W` | Set currently-displayed image as wallpaper |
 
-> **Why different keys?** In Image View, lowercase `w` is already bound to "pan up"
+> **Why `b` or `W`?** `b` stands for Background. In Image View, lowercase `w` is already bound to "pan up"
 > (part of `w/a/s/d` pan cluster). Capital `W` is free and semantically distinct.
 
 ---
