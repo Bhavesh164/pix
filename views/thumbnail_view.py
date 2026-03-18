@@ -118,7 +118,6 @@ class ThumbnailView(tk.Frame):
         self.bind("G", lambda e: self._go_extreme(bottom=True))
         self.bind("g", self._on_g)
         self.bind("b", lambda e: self._set_wallpaper())
-        self.bind("W", lambda e: self._set_wallpaper())
         
         self.bind("<MouseWheel>", self._on_mousewheel)
         self.bind("<Button-4>", self._on_mousewheel)

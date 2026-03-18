@@ -1,10 +1,6 @@
 import tkinter as tk
 
-class HelpOverlay(tk.Frame):
-    def __init__(self, parent):
-        super().__init__(parent, bg='black', highlightbackground="white", highlightcolor="white", highlightthickness=1)
-        
-        text = """
+HELP_TEXT = """
 ╔─── keybindings ──────────────────╗
 │  GRID VIEW                       │
 │  h j k l   navigate              │
@@ -12,7 +8,7 @@ class HelpOverlay(tk.Frame):
 │  Space     select                │
 │  d         delete selected       │
 │  /         search                │
-│  b, W      set as wallpaper      │
+│  b         set as wallpaper      │
 │                                  │
 │  IMAGE VIEW                      │
 │  q         back to grid          │
@@ -21,12 +17,18 @@ class HelpOverlay(tk.Frame):
 │  w a s d   pan image (zoom)      │
 │  ↑ ↓       pan up/down (zoom)    │
 │  h l       prev/next             │
-│  b, W      set as wallpaper      │
+│  b         set as wallpaper      │
 │                                  │
 │                   Esc to close   │
 ╚──────────────────────────────────╝
 """
-        lbl = tk.Label(self, text=text.strip(), bg='black', fg='white', font=("Courier", 12), justify=tk.LEFT)
+
+
+class HelpOverlay(tk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent, bg='black', highlightbackground="white", highlightcolor="white", highlightthickness=1)
+
+        lbl = tk.Label(self, text=HELP_TEXT.strip(), bg='black', fg='white', font=("Courier", 12), justify=tk.LEFT)
         lbl.pack(padx=20, pady=20)
         
         self.bind("<Escape>", lambda e: self._close())

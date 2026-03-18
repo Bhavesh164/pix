@@ -78,6 +78,7 @@ pix/
 │   ├── thumb_cache.py       # Disk cache for WebP thumbnails (~/.cache/pix)
 │   ├── thumb_worker.py      # ThreadPoolExecutor thumbnail generator
 │   ├── wallpaper.py         # Cross-platform wallpaper setter
+│   ├── macos_wallpaper.py   # Tahoe wallpaper store updater for macOS
 │   └── fuzzy.py             # Fuzzy search helper (thefuzz)
 │
 ├── views/
@@ -101,7 +102,7 @@ pix/
 ```
 main.py
   │
-  ├─ argparse → parse path, -r (recursive), --clear-cache
+  ├─ argparse → parse path, -r (recursive), --clear-cache, --set-wallpaper
   │
   ├─ ImageLoader(target_path, recursive).load_images()
   │     └─ returns sorted list[Path]
@@ -464,13 +465,15 @@ set_wallpaper(image_path)
       │
       ├─ sys.platform == "darwin"       → _set_wallpaper_macos()
       │        │
-      │        ├─ PRIMARY: swift - (inline script)
-      │        │    NSWorkspace.shared.setDesktopImageURL(url, for: screen)
-      │        │    ✓ Works on macOS Ventura, Sonoma, Sequoia, Tahoe (13+)
+      │        ├─ PRIMARY: core.macos_wallpaper.set_wallpaper()
+      │        │    plistlib → ~/Library/Application Support/com.apple.wallpaper/Store/Index.plist
+      │        │    rewrites Desktop choice configuration to an imageFile URL
+      │        │    atomically replaces the Tahoe wallpaper store
+      │        │    restarts com.apple.wallpaper.agent so Tahoe applies it immediately
       │        │
       │        └─ FALLBACK: osascript AppleScript
-      │             "tell every desktop → set picture"
-      │             (older macOS < Ventura)
+      │             System Events / Finder
+      │             (best-effort compatibility path)
       │
       ├─ sys.platform == "win32"        → _set_wallpaper_windows()
       │                                      ctypes.windll.user32
@@ -502,8 +505,8 @@ bottom-right corner of the screen.
 
 | Platform        | Tool Used                    | Requirements                          |
 |-----------------|------------------------------|---------------------------------------|
-| macOS 13+       | `swift` + `NSWorkspace`      | Built into Xcode CLI tools (default)  |
-| macOS < 13      | `osascript` (AppleScript)    | Built into macOS                      |
+| macOS Tahoe     | Wallpaper store rewrite      | Access to `com.apple.wallpaper` store |
+| macOS fallback  | `osascript` (AppleScript)    | Built into macOS                      |
 | Windows         | `ctypes` (Win32 API)         | Built into Python on Windows          |
 | GNOME / Cinnamon| `gsettings`                  | Installed by default                  |
 | KDE Plasma      | `qdbus` + PlasmaShell        | `qdbus` (part of kde-cli-tools)       |
@@ -511,10 +514,10 @@ bottom-right corner of the screen.
 | Sway / Hyprland | `swaybg`                     | Install: `apt install swaybg`         |
 | X11 fallback    | `feh`                        | Install: `apt install feh`            |
 
-> **Why did AppleScript break?** Starting with macOS Ventura (13), Apple tightened sandboxing
-> around `System Events` wallpaper access. `NSWorkspace.shared.setDesktopImageURL` is the
-> official, sandboxing-safe API. We call it via `swift -` (stdin pipe) since we can't link
-> AppKit from Python directly.
+> **Why the Tahoe rewrite?** The Tahoe wallpaper runtime persists desktop state in
+> `com.apple.wallpaper/Store/Index.plist`. A direct Python-to-AppKit bridge proved crash-prone in
+> this environment, so `pix` now updates the same wallpaper store structure Tahoe already uses and
+> keeps AppleScript only as a compatibility fallback.
 
 ---
 
@@ -533,11 +536,10 @@ Bindings are `tkinter` event strings:
 
 | View           | Key   | Behavior                               |
 |----------------|-------|----------------------------------------|
-| Grid View      | `b/W` | Set focused (highlighted) image as wallpaper |
-| Image View     | `b/W` | Set currently-displayed image as wallpaper |
+| Grid View      | `b`   | Set focused (highlighted) image as wallpaper |
+| Image View     | `b`   | Set currently-displayed image as wallpaper |
 
-> **Why `b` or `W`?** `b` stands for Background. In Image View, lowercase `w` is already bound to "pan up"
-> (part of `w/a/s/d` pan cluster). Capital `W` is free and semantically distinct.
+> **Why `b`?** `b` stands for Background and keeps the wallpaper action consistent in both views.
 
 ---
 

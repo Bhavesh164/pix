@@ -2,7 +2,7 @@
 Cross-platform wallpaper setter for pix.
 
 Supported platforms:
-  - macOS:   AppleScript via osascript
+  - macOS:   Tahoe wallpaper store + AppleScript fallback
   - Windows: ctypes win32 SystemParametersInfoW
   - Linux:   auto-detects desktop environment (GNOME, KDE, XFCE, feh fallback)
 """
@@ -39,19 +39,36 @@ def set_wallpaper(image_path: Path) -> tuple[bool, str]:
 
 def _set_wallpaper_macos(image_path: Path) -> tuple[bool, str]:
     """
-    Set wallpaper on macOS using an aggressive combination of methods.
-    macOS Ventura/Sonoma/Sequoia/Tahoe have various sandbox and Space restrictions.
-    We try AppleScript (Finder), AppleScript (System Events), and Swift (NSWorkspace).
+    Set wallpaper on macOS using the Tahoe wallpaper store first.
+    AppleScript remains as a best-effort fallback for older or unusual environments.
     """
-    import shutil
-    import tempfile
+    native_ok, native_message = _set_wallpaper_macos_store(image_path)
+    if native_ok:
+        return native_ok, native_message
+
+    fallback_ok, fallback_message = _set_wallpaper_macos_applescript(image_path)
+    if fallback_ok:
+        return fallback_ok, fallback_message
+
+    errors = [msg for msg in (native_message, fallback_message) if msg]
+    return False, " | ".join(errors) or "Failed to set wallpaper on macOS"
+
+
+def _set_wallpaper_macos_store(image_path: Path) -> tuple[bool, str]:
+    try:
+        from core.macos_wallpaper import set_wallpaper as set_wallpaper_store
+    except Exception as exc:
+        return False, f"Tahoe wallpaper store unavailable: {exc}"
+
+    try:
+        return set_wallpaper_store(image_path)
+    except Exception as exc:
+        return False, f"Tahoe wallpaper error: {exc}"
+
+
+def _set_wallpaper_macos_applescript(image_path: Path) -> tuple[bool, str]:
     import os
 
-    success = False
-    errors = []
-
-    # Strip PyInstaller's custom library paths. If we don't, osascript and swift
-    # will link against python's bundled libraries and silently fail or crash.
     clean_env = os.environ.copy()
     clean_env.pop("DYLD_LIBRARY_PATH", None)
     clean_env.pop("LD_LIBRARY_PATH", None)
@@ -59,77 +76,48 @@ def _set_wallpaper_macos(image_path: Path) -> tuple[bool, str]:
     clean_env.pop("TK_LIBRARY", None)
     clean_env["PATH"] = "/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"
 
-    # Method 1: AppleScript (System Events) - Best for all spaces
-    applescript_sys = f'''
-        tell application "System Events"
-            tell every desktop
-                set picture to "{image_path}"
-            end tell
-        end tell
-    '''
-    res_sys = subprocess.run(["/usr/bin/osascript", "-e", applescript_sys], capture_output=True, text=True, timeout=10, env=clean_env)
-    if res_sys.returncode == 0:
-        success = True
-    else:
-        errors.append(f"SysEvents: {res_sys.stderr.strip()}")
+    scripts = [
+        (
+            "System Events",
+            f'''
+                tell application "System Events"
+                    tell every desktop
+                        set picture to "{image_path}"
+                    end tell
+                end tell
+            ''',
+        ),
+        (
+            "Finder",
+            f'''
+                tell application "Finder"
+                    set desktop picture to (POSIX file "{image_path}" as alias)
+                end tell
+            ''',
+        ),
+    ]
 
-    # Method 2: AppleScript (Finder) - Fallback
-    applescript_finder = f'''
-        tell application "Finder"
-            set desktop picture to POSIX file "{image_path}"
-        end tell
-    '''
-    res_fin = subprocess.run(["/usr/bin/osascript", "-e", applescript_finder], capture_output=True, text=True, timeout=10, env=clean_env)
-    if res_fin.returncode == 0:
-        success = True
-    else:
-        errors.append(f"Finder: {res_fin.stderr.strip()}")
-
-    # Method 3: Swift NSWorkspace - Fallback for newer macOS if AppleScript blocked
-    swift_bin = "/usr/bin/swift"
-    if not os.path.isfile(swift_bin):
-        swift_bin = shutil.which("swift") or "swift"
-
-    safe_path = str(image_path).replace("\\", "\\\\").replace('"', '\\"')
-    swift_script = f'''import AppKit
-import Foundation
-let url = URL(fileURLWithPath: "{safe_path}")
-var failed = false
-for screen in NSScreen.screens {{
-    do {{
-        try NSWorkspace.shared.setDesktopImageURL(url, for: screen, options: [:])
-    }} catch {{
-        failed = true
-    }}
-}}
-exit(failed ? 1 : 0)
-'''
-    try:
-        fd, tmp_path = tempfile.mkstemp(suffix=".swift", prefix="pix_wallpaper_")
+    errors = []
+    for label, script in scripts:
         try:
-            os.write(fd, swift_script.encode("utf-8"))
-            os.close(fd)
-            res_swift = subprocess.run(
-                [swift_bin, tmp_path],
-                capture_output=True, text=True, timeout=30,
-                env=clean_env
+            result = subprocess.run(
+                ["/usr/bin/osascript", "-e", script],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                env=clean_env,
             )
-            if res_swift.returncode == 0:
-                success = True
-            else:
-                errors.append(f"Swift: {res_swift.stderr.strip() or res_swift.stdout.strip()}")
-        finally:
-            try:
-                os.unlink(tmp_path)
-            except OSError:
-                pass
-    except Exception as e:
-        errors.append(f"SwiftErr: {e}")
+        except Exception as exc:
+            errors.append(f"{label}: {exc}")
+            continue
 
-    if success:
-        return True, f"Wallpaper set: {image_path.name}"
-    else:
-        return False, " | ".join(errors) or "Failed to set wallpaper on macOS"
+        if result.returncode == 0:
+            return True, f"Wallpaper set: {image_path.name}"
+
+        detail = result.stderr.strip() or result.stdout.strip() or "unknown AppleScript failure"
+        errors.append(f"{label}: {detail}")
+
+    return False, " | ".join(errors)
 
 
 # ─── Windows ──────────────────────────────────────────────────────────────────

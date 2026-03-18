@@ -87,6 +87,9 @@ Run `pix` from the terminal by passing an image or directory:
 
 # Single image mode (opens directly to full image view, without grid)
 ./pix ./photo.jpg
+
+# Set a single image as wallpaper and exit
+./pix --set-wallpaper ./photo.jpg
 ```
 
 ### Keybindings
@@ -103,6 +106,7 @@ Run `pix` from the terminal by passing an image or directory:
 - `Enter` : Open selected image in full view
 - `Space` : Toggle select image
 - `V` : Select all images
+- `b` : Set the selected image as the desktop wallpaper
 - `d` : Delete selected images (opens confirmation overlay)
 - `Ctrl+d` / `Ctrl+u` : Scroll grid down / up
 - `g g` : Jump to the first image
@@ -115,6 +119,7 @@ Run `pix` from the terminal by passing an image or directory:
 **Image View (Full Image Mode)**
 - `q` : Go back to the thumbnail grid
 - `h` / `l` : Previous / Next image
+- `b` : Set the current image as the desktop wallpaper
 - `+` / `-` : Zoom in / out (10% steps)
 - `0` : Reset zoom (fit to window)
 - `W` / `H` : Fit to width / height
@@ -139,4 +144,7 @@ Run `pix` from the terminal by passing an image or directory:
 
 # Purge cache for a recursive scan of the current directory, then exit
 ./pix -r --clear-cache .
+
+# Set wallpaper directly from the binary, then exit
+./pix --set-wallpaper ./photo.jpg
 ```
