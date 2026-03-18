@@ -40,20 +40,15 @@ pip install -r requirements.txt
 
 ## How to Build / Generate Binary
 
-**OS Prerequisites:** 
-PyInstaller requires the standard Python `tkinter` GUI bindings to successfully bundle the graphical application.
+**OS Prerequisites:**
+This repository now targets macOS only. PyInstaller requires the standard Python `tkinter` GUI bindings to successfully bundle the graphical application.
 
-- **macOS:** You must install the `python-tk` package via Homebrew:
+- **macOS:** Install the `python-tk` package via Homebrew:
   ```bash
   brew install python-tk
   ```
-- **Linux (Ubuntu/Debian):** You need the `python3-tk` package installed:
-  ```bash
-  sudo apt install python3-tk
-  ```
-- **Windows:** `tkinter` dependencies are shipped by default with the official Python installer. Just ensure the "tcl/tk and IDLE" option was checked during your installation.
 
-To generate a single, standalone binary executable (no Python installation required for end users), you can use the provided build script.
+To generate the macOS app bundle and a fast command-line launcher, you can use the provided build script.
 
 1. Ensure dependencies are installed (including `pyinstaller`).
 2. Run the `build.sh` script:
@@ -65,10 +60,48 @@ chmod +x build.sh
 
 **Alternatively, you can run the build command manually:**
 ```bash
-pyinstaller --onefile --windowed --name pix main.py
+pyinstaller -y pix.spec
 ```
 
-The resulting binary will be located at `dist/pix`.
+Build outputs:
+- `dist/pix.app` — GUI app bundle for Finder / DMG distribution
+- `dist/pix` — fast terminal launcher that can be copied into a directory like `/usr/local/bin`
+- `dist/pix_cli/` — fast CLI runtime used by the launcher
+
+### Install `pix` Into Your PATH
+
+The `dist/pix` launcher can run from anywhere after you install it into a directory on your `PATH`.
+
+```bash
+chmod +x install_pix.sh
+./install_pix.sh
+```
+
+On Apple Silicon Macs, that script prefers `/opt/homebrew/bin`. If `/usr/local/bin` is writable on your machine, you can target it explicitly:
+
+```bash
+./install_pix.sh /usr/local/bin
+```
+
+For the launcher to stay fast, keep either `dist/pix_cli/` or `pix.app` available. The launcher checks, in order:
+- `pix_cli/` next to the launcher
+- `~/Library/Application Support/pix/pix_cli/` (used by `install_pix.sh`)
+- `pix.app` next to the launcher
+- `/Applications/pix.app`
+- `~/Applications/pix.app`
+
+### How to Build a macOS `.dmg`
+
+If you want a drag-and-drop macOS installer image, use the bundled DMG helper after `dist/pix.app` has been built:
+
+```bash
+chmod +x build_dmg.sh
+./build_dmg.sh
+```
+
+That script packages `dist/pix.app` into `dist/pix.dmg` and includes an `Applications` shortcut inside the disk image so users can drag `pix.app` into their Applications folder.
+
+If `dist/pix.app` does not exist yet, `build_dmg.sh` will run `./build.sh` for you first.
 
 ---
 

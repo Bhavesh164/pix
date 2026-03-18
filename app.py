@@ -71,7 +71,7 @@ class PixApp:
         self.active_view.focus_set()
         
     def set_wallpaper(self, image_path):
-        """Set the desktop wallpaper cross-platform and show a brief toast."""
+        """Set the desktop wallpaper on macOS and show a brief toast."""
         success, message = set_wallpaper(image_path)
         self._show_toast(message)
 

@@ -18,6 +18,17 @@ class WallpaperTests(unittest.TestCase):
         self.assertFalse(success)
         self.assertIn("File not found", message)
 
+    @mock.patch("core.wallpaper.sys.platform", "linux")
+    def test_non_macos_reports_unsupported(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            image_path = Path(tmpdir) / "demo.jpg"
+            image_path.write_bytes(b"demo")
+
+            success, message = wallpaper.set_wallpaper(image_path)
+
+        self.assertFalse(success)
+        self.assertIn("only supported on macOS", message)
+
     @mock.patch("core.wallpaper._set_wallpaper_macos_applescript")
     @mock.patch("core.wallpaper._set_wallpaper_macos_store")
     def test_macos_prefers_store_backend(self, mock_store, mock_applescript):

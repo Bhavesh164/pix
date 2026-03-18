@@ -5,7 +5,7 @@ from core.image_loader import ImageLoader
 from core.wallpaper import set_wallpaper
 
 def main():
-    parser = argparse.ArgumentParser(description="pix — Minimal Vim-style Image Viewer")
+    parser = argparse.ArgumentParser(prog="pix", description="pix — Minimal Vim-style Image Viewer")
     parser.add_argument("path", nargs="?", default=".", help="Directory or single image to open")
     parser.add_argument("-r", "--recursive", action="store_true", help="Scan directory recursively")
     parser.add_argument("--clear-cache", action="store_true", help="Purge cache for the specified path, then exit")

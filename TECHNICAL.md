@@ -1,6 +1,6 @@
 # pix — Technical Architecture
 
-> A deep-dive into how `pix` works internally: module design, data flow, performance strategy, and cross-platform wallpaper support.
+> A deep-dive into how `pix` works internally: module design, data flow, performance strategy, and macOS wallpaper support.
 
 ---
 
@@ -23,7 +23,7 @@
    - [ImageView](#imageview)
 7. [Overlays](#overlays)
 8. [Thumbnail Loading Pipeline](#thumbnail-loading-pipeline)
-9. [Cross-Platform Wallpaper](#cross-platform-wallpaper)
+9. [macOS Wallpaper](#macos-wallpaper)
 10. [Keybinding System](#keybinding-system)
 11. [Performance Design Decisions](#performance-design-decisions)
 12. [Build System](#build-system)
@@ -77,7 +77,7 @@ pix/
 │   ├── image_loader.py      # Filesystem scan → sorted list of Paths
 │   ├── thumb_cache.py       # Disk cache for WebP thumbnails (~/.cache/pix)
 │   ├── thumb_worker.py      # ThreadPoolExecutor thumbnail generator
-│   ├── wallpaper.py         # Cross-platform wallpaper setter
+│   ├── wallpaper.py         # macOS wallpaper setter
 │   ├── macos_wallpaper.py   # Tahoe wallpaper store updater for macOS
 │   └── fuzzy.py             # Fuzzy search helper (thefuzz)
 │
@@ -212,7 +212,7 @@ source files since far fewer pixels are decoded from disk.
 core/wallpaper.py
 ```
 
-Cross-platform wallpaper setter. See the [Cross-Platform Wallpaper](#cross-platform-wallpaper)
+macOS wallpaper setter. See the [macOS Wallpaper](#macos-wallpaper)
 section for the full decision tree.
 
 Public API:
@@ -451,14 +451,14 @@ Creating 1000 `tk.Frame` + `tk.Label` widgets is ~5–10× slower than creating 
 
 ---
 
-## Cross-Platform Wallpaper
+## macOS Wallpaper
 
 ```
 core/wallpaper.py
 ```
 
-The `set_wallpaper()` function detects the OS at runtime using `sys.platform` and dispatches
-to the appropriate backend.
+The `set_wallpaper()` function keeps wallpaper changes macOS-only. On non-macOS platforms it
+returns a clear unsupported message instead of carrying extra platform-specific code paths.
 
 ```
 set_wallpaper(image_path)
@@ -475,44 +475,19 @@ set_wallpaper(image_path)
       │             System Events / Finder
       │             (best-effort compatibility path)
       │
-      ├─ sys.platform == "win32"        → _set_wallpaper_windows()
-      │                                      ctypes.windll.user32
-      │                                      SystemParametersInfoW(SPI_SETDESKWALLPAPER)
-      │
-      └─ sys.platform.startswith("linux") → _set_wallpaper_linux()
-               │
-               ├─ XDG_CURRENT_DESKTOP contains "gnome" / "unity" / "pop" / ...
-               │        → gsettings set org.gnome.desktop.background picture-uri
-               │
-               ├─ XDG_CURRENT_DESKTOP contains "kde" / "plasma"
-               │        → qdbus org.kde.plasmashell evaluateScript (JS)
-               │
-               ├─ XDG_CURRENT_DESKTOP contains "xfce"
-               │        → xfconf-query -c xfce4-desktop -p .../last-image -s <path>
-               │
-               ├─ WAYLAND_DISPLAY set (Sway / Hyprland / generic Wayland)
-               │        → swaybg -i <path> -m fill (daemonized)
-               │
-               └─ fallback (X11)
-                        → feh --bg-fill <path>
+      └─ any other platform             → "Wallpaper setting is only supported on macOS"
 ```
 
 All backends return `(bool, str)` — success flag and a human-readable message. The
 `PixApp._show_toast()` method displays this message as a 2.5-second overlay in the
 bottom-right corner of the screen.
 
-### Platform Decision Matrix
+### macOS Decision Matrix
 
 | Platform        | Tool Used                    | Requirements                          |
 |-----------------|------------------------------|---------------------------------------|
 | macOS Tahoe     | Wallpaper store rewrite      | Access to `com.apple.wallpaper` store |
 | macOS fallback  | `osascript` (AppleScript)    | Built into macOS                      |
-| Windows         | `ctypes` (Win32 API)         | Built into Python on Windows          |
-| GNOME / Cinnamon| `gsettings`                  | Installed by default                  |
-| KDE Plasma      | `qdbus` + PlasmaShell        | `qdbus` (part of kde-cli-tools)       |
-| XFCE            | `xfconf-query`               | Part of XFCE settings manager         |
-| Sway / Hyprland | `swaybg`                     | Install: `apt install swaybg`         |
-| X11 fallback    | `feh`                        | Install: `apt install feh`            |
 
 > **Why the Tahoe rewrite?** The Tahoe wallpaper runtime persists desktop state in
 > `com.apple.wallpaper/Store/Index.plist`. A direct Python-to-AppKit bridge proved crash-prone in
@@ -567,7 +542,7 @@ build.sh  →  PyInstaller  →  dist/pix  (single-file standalone binary)
 ```bash
 pyinstaller \
   --onefile \           # bundle everything into one file
-  --windowed \          # no terminal window on macOS/Windows
+  --windowed \          # no terminal window on macOS
   --name pix \
   --icon assets/pix.icns \
   main.py
@@ -580,8 +555,6 @@ pyinstaller pix.spec
 
 **Platform-specific requirements for build**:
 
-| OS      | Requirement                          |
-|---------|--------------------------------------|
-| macOS   | `brew install python-tk`             |
-| Linux   | `sudo apt install python3-tk`        |
-| Windows | Ensure "tcl/tk and IDLE" was checked during Python install |
+| OS      | Requirement              |
+|---------|--------------------------|
+| macOS   | `brew install python-tk` |
