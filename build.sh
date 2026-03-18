@@ -5,7 +5,7 @@ fi
 source venv/bin/activate
 
 pip install -r requirements.txt
-pyinstaller -y --windowed --name pix main.py
+pyinstaller -y pix.spec
 
 # Create a fast CLI wrapper since --onefile is extremely slow on macOS
 rm -rf dist/pix
