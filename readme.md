@@ -40,6 +40,19 @@ pip install -r requirements.txt
 
 ## How to Build / Generate Binary
 
+**OS Prerequisites:** 
+PyInstaller requires the standard Python `tkinter` GUI bindings to successfully bundle the graphical application.
+
+- **macOS:** You must install the `python-tk` package via Homebrew:
+  ```bash
+  brew install python-tk
+  ```
+- **Linux (Ubuntu/Debian):** You need the `python3-tk` package installed:
+  ```bash
+  sudo apt install python3-tk
+  ```
+- **Windows:** `tkinter` dependencies are shipped by default with the official Python installer. Just ensure the "tcl/tk and IDLE" option was checked during your installation.
+
 To generate a single, standalone binary executable (no Python installation required for end users), you can use the provided build script.
 
 1. Ensure dependencies are installed (including `pyinstaller`).
