@@ -89,6 +89,8 @@ class ImageView(tk.Frame):
         self.bind("b", lambda e: self.app.set_wallpaper(self.image_path))
         self.bind("?", lambda e: self._show_help())
         self.bind("/", lambda e: self._show_search())
+        self.bind("c", lambda e: self.app.clear_cache())
+        self.bind("C", lambda e: self.app.clear_cache())
         
     def _show_help(self):
         from overlays.help_overlay import HelpOverlay

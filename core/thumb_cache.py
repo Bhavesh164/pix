@@ -2,6 +2,7 @@ import os
 import hashlib
 from pathlib import Path
 import shutil
+from core.image_loader import ImageLoader
 
 class ThumbCache:
     def __init__(self, master_path: Path):
@@ -16,16 +17,42 @@ class ThumbCache:
         return self.cache_dir / f"{key_hash}.webp"
         
     def clear(self, recursive=False):
-        # We need to list cache and check if original path starts with master_path
-        # But our key only has the hash. So we should probably store a metadata file or name it differently.
-        # Alternatively, a simple wipe of the entire cache is what most users mean if they run --clear-cache.
-        # Let's purge files that are old or just wipe the dir. The plan says "Purge cache only for this folder".
-        # This implies we need the path in the filename, e.g. base64_path_timestamp.webp or similar.
-        # For simplicity and speed, let's just wipe everything if we can't tell,
-        # OR let's change our key strategy: include sha1 of path, but maybe keep a map.
-        pass
+        removed = 0
+        for image_path in self._iter_image_paths(recursive=recursive):
+            cache_path = self.get_cache_path(image_path)
+            try:
+                cache_path.unlink()
+                removed += 1
+            except FileNotFoundError:
+                continue
+        return removed
         
     def wipe_all(self):
         if self.cache_dir.exists():
             shutil.rmtree(self.cache_dir)
             self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+    def _iter_image_paths(self, recursive=False):
+        if self.master_path.is_file():
+            loader = ImageLoader(self.master_path, recursive=False)
+            return loader.load_images()
+
+        loader = ImageLoader(self.master_path, recursive=recursive)
+        return loader.load_images()
+
+
+def format_clear_message(removed_count: int, location: Path | None = None) -> str:
+    noun = "thumbnail" if removed_count == 1 else "thumbnails"
+    if location is None:
+        return f"Cleared {removed_count} cached {noun}."
+    return f"Cleared {removed_count} cached {noun} for {_display_location(location)}."
+
+
+def _display_location(path: Path) -> str:
+    path = path.expanduser().resolve()
+    home = Path.home().resolve()
+    try:
+        relative = path.relative_to(home)
+        return str(Path("~") / relative)
+    except ValueError:
+        return str(path)

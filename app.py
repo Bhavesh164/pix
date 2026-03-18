@@ -1,21 +1,17 @@
 import tkinter as tk
-import sys
 from pathlib import Path
 from core.image_loader import ImageLoader
-from core.thumb_cache import ThumbCache
+from core.thumb_cache import ThumbCache, format_clear_message
 from core.wallpaper import set_wallpaper
 from views.thumbnail_view import ThumbnailView
 from views.image_view import ImageView
 
 class PixApp:
-    def __init__(self, target_path, recursive=False, clear_cache=False, images=None):
+    def __init__(self, target_path, recursive=False, images=None):
         self.target_path = Path(target_path).expanduser().resolve()
+        self.recursive = recursive
         cache_base = self.target_path if self.target_path.is_dir() else self.target_path.parent
         self.thumb_cache = ThumbCache(cache_base)
-        
-        if clear_cache:
-            self.thumb_cache.clear(recursive=recursive)
-            sys.exit(0)
 
         self.root = tk.Tk()
         self.root.configure(bg='black')
@@ -74,6 +70,10 @@ class PixApp:
         """Set the desktop wallpaper on macOS and show a brief toast."""
         success, message = set_wallpaper(image_path)
         self._show_toast(message)
+
+    def clear_cache(self):
+        removed = self.thumb_cache.clear(recursive=self.recursive)
+        self._show_toast(format_clear_message(removed, self.thumb_cache.master_path))
 
     def _show_toast(self, message, duration_ms=2500):
         """Show a transient status message in the bottom-right corner."""

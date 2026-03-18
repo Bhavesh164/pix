@@ -2,12 +2,16 @@ import tkinter as tk
 
 HELP_TEXT = """
 ╔─── keybindings ──────────────────╗
+│  GLOBAL                          │
+│  ?         help                  │
+│  /         search                │
+│  c / C     purge thumbnail cache │
+│                                  │
 │  GRID VIEW                       │
 │  h j k l   navigate              │
 │  Enter     open image            │
 │  Space     select                │
 │  d         delete selected       │
-│  /         search                │
 │  b         set as wallpaper      │
 │                                  │
 │  IMAGE VIEW                      │

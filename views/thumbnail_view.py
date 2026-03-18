@@ -113,6 +113,8 @@ class ThumbnailView(tk.Frame):
         self.bind("<Escape>", lambda e: self.app.quit())
         self.bind("?", lambda e: self._show_help())
         self.bind("/", lambda e: self._show_search())
+        self.bind("c", lambda e: self.app.clear_cache())
+        self.bind("C", lambda e: self.app.clear_cache())
         self.bind("<Control-d>", lambda e: self._move_page(down=True, half=True))
         self.bind("<Control-u>", lambda e: self._move_page(down=False, half=True))
         self.bind("G", lambda e: self._go_extreme(bottom=True))

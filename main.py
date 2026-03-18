@@ -2,6 +2,7 @@ import argparse
 import sys
 from pathlib import Path
 from core.image_loader import ImageLoader
+from core.thumb_cache import ThumbCache, format_clear_message
 from core.wallpaper import set_wallpaper
 
 def main():
@@ -17,6 +18,12 @@ def main():
     if not target_path.exists():
         print(f"Error: path '{args.path}' does not exist.")
         sys.exit(1)
+
+    if args.clear_cache:
+        cache_base = target_path if target_path.is_dir() else target_path.parent
+        removed = ThumbCache(cache_base).clear(recursive=args.recursive)
+        print(format_clear_message(removed, cache_base))
+        sys.exit(0)
 
     if args.set_wallpaper:
         if not target_path.is_file():
@@ -35,9 +42,8 @@ def main():
         sys.exit(1)
         
     from app import PixApp
-    app = PixApp(target_path, recursive=args.recursive, clear_cache=args.clear_cache, images=images)
-    if not args.clear_cache:
-        app.run()
+    app = PixApp(target_path, recursive=args.recursive, images=images)
+    app.run()
 
 if __name__ == "__main__":
     main()
