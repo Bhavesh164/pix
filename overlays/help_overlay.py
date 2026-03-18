@@ -18,9 +18,10 @@ class HelpOverlay(tk.Frame):
 │  q         back to grid          │
 │  i o       zoom in/out           │
 │  u         reset zoom            │
-│  w a s d   pan image (zoom)      │
+│  a s d     pan (zoom mode)       │
+│  ↑ ↓       pan up/down (zoom)    │
 │  h l       prev/next             │
-│  W         set as wallpaper      │
+│  w         set as wallpaper      │
 │                                  │
 │                   Esc to close   │
 ╚──────────────────────────────────╝

@@ -80,11 +80,12 @@ class ImageView(tk.Frame):
         self.bind("i", lambda e: self._change_zoom(0.1)) # i key
         self.bind("o", lambda e: self._change_zoom(-0.1)) # o key
         self.bind("u", lambda e: self._reset_zoom())
-        self.bind("w", lambda e: self._pan(0, -50))
+        self.bind("w", lambda e: self.app.set_wallpaper(self.image_path))
+        self.bind("<Up>", lambda e: self._pan(0, -50))
+        self.bind("<Down>", lambda e: self._pan(0, 50))
         self.bind("a", lambda e: self._pan(-50, 0))
         self.bind("s", lambda e: self._pan(0, 50))
         self.bind("d", lambda e: self._pan(50, 0))
-        self.bind("W", lambda e: self.app.set_wallpaper(self.image_path))
         self.bind("?", lambda e: self._show_help())
         self.bind("/", lambda e: self._show_search())
         

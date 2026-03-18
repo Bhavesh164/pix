@@ -89,7 +89,8 @@ class PixApp:
         )
         sw = self.root.winfo_screenwidth()
         sh = self.root.winfo_screenheight()
-        toast.place(x=sw - 20, y=sh - 20, anchor='se')
+        toast.place(x=sw - 20, y=sh - 40, anchor='se') # Moved up slightly to avoid status bar overlap
+        toast.lift()
         self.root.after(duration_ms, toast.destroy)
 
     def quit(self):

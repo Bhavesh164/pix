@@ -463,8 +463,14 @@ to the appropriate backend.
 set_wallpaper(image_path)
       │
       ├─ sys.platform == "darwin"       → _set_wallpaper_macos()
-      │                                      osascript AppleScript
-      │                                      ("tell every desktop → set picture")
+      │        │
+      │        ├─ PRIMARY: swift - (inline script)
+      │        │    NSWorkspace.shared.setDesktopImageURL(url, for: screen)
+      │        │    ✓ Works on macOS Ventura, Sonoma, Sequoia, Tahoe (13+)
+      │        │
+      │        └─ FALLBACK: osascript AppleScript
+      │             "tell every desktop → set picture"
+      │             (older macOS < Ventura)
       │
       ├─ sys.platform == "win32"        → _set_wallpaper_windows()
       │                                      ctypes.windll.user32
@@ -496,13 +502,19 @@ bottom-right corner of the screen.
 
 | Platform        | Tool Used                    | Requirements                          |
 |-----------------|------------------------------|---------------------------------------|
-| macOS           | `osascript` (AppleScript)    | Built into macOS                      |
+| macOS 13+       | `swift` + `NSWorkspace`      | Built into Xcode CLI tools (default)  |
+| macOS < 13      | `osascript` (AppleScript)    | Built into macOS                      |
 | Windows         | `ctypes` (Win32 API)         | Built into Python on Windows          |
 | GNOME / Cinnamon| `gsettings`                  | Installed by default                  |
 | KDE Plasma      | `qdbus` + PlasmaShell        | `qdbus` (part of kde-cli-tools)       |
 | XFCE            | `xfconf-query`               | Part of XFCE settings manager         |
 | Sway / Hyprland | `swaybg`                     | Install: `apt install swaybg`         |
 | X11 fallback    | `feh`                        | Install: `apt install feh`            |
+
+> **Why did AppleScript break?** Starting with macOS Ventura (13), Apple tightened sandboxing
+> around `System Events` wallpaper access. `NSWorkspace.shared.setDesktopImageURL` is the
+> official, sandboxing-safe API. We call it via `swift -` (stdin pipe) since we can't link
+> AppKit from Python directly.
 
 ---
 
