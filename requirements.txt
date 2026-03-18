@@ -1,0 +1,4 @@
+pillow
+thefuzz
+python-Levenshtein
+pyinstaller
