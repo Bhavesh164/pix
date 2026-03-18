@@ -7,7 +7,7 @@ from views.thumbnail_view import ThumbnailView
 from views.image_view import ImageView
 
 class PixApp:
-    def __init__(self, target_path, recursive=False, clear_cache=False):
+    def __init__(self, target_path, recursive=False, clear_cache=False, images=None):
         self.target_path = Path(target_path).expanduser().resolve()
         cache_base = self.target_path if self.target_path.is_dir() else self.target_path.parent
         self.thumb_cache = ThumbCache(cache_base)
@@ -26,7 +26,7 @@ class PixApp:
         self.loader = ImageLoader(self.target_path, recursive)
         
         # Load images
-        self.images = self.loader.load_images()
+        self.images = images if images is not None else self.loader.load_images()
         if not self.images:
             print(f"No images found in {self.target_path}")
             sys.exit(1)
