@@ -6,6 +6,7 @@ HELP_TEXT = """
 │  ?         help                  │
 │  /         search                │
 │  c / C     purge thumbnail cache │
+│  x         purge entire cache    │
 │                                  │
 │  GRID VIEW                       │
 │  h j k l   navigate              │

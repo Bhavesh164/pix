@@ -130,7 +130,8 @@ Run `pix` from the terminal by passing an image or directory:
 **Global / Overlays**
 - `?` : Show keybinding help overlay (dismiss with `Esc` or `?`)
 - `/` : Open fuzzy search bar (type to search, `Enter` to open, `Esc` to close)
-- `C` : Purge cache for the currently loaded folder
+- `c` / `C` : Purge cache for the currently loaded folder
+- `x` : Purge the entire thumbnail cache directory
 
 ---
 
@@ -171,9 +172,6 @@ Run `pix` from the terminal by passing an image or directory:
 `pix` generates thumbnails and stores them aggressively to ensure instantaneous loading. You can manage the cache using CLI flags as well:
 
 ```bash
-# Purge entire cache, then exit
-./pix --clear-cache
-
 # Purge cache strictly for a specific folder, then exit
 ./pix --clear-cache ./photos
 
@@ -183,3 +181,5 @@ Run `pix` from the terminal by passing an image or directory:
 # Set wallpaper directly from the binary, then exit
 ./pix --set-wallpaper ./photo.jpg
 ```
+
+Inside the app, `x` clears the entire `~/.cache/pix` directory.

@@ -117,6 +117,7 @@ class ThumbnailView(tk.Frame):
         self._bind_shortcut("/", lambda e: self._show_search())
         self._bind_shortcut("c", lambda e: self.app.clear_cache())
         self._bind_shortcut("C", lambda e: self.app.clear_cache())
+        self._bind_shortcut("x", lambda e: self.app.clear_entire_cache())
         self._bind_shortcut("<Control-d>", lambda e: self._move_page(down=True, half=True))
         self._bind_shortcut("<Control-u>", lambda e: self._move_page(down=False, half=True))
         self._bind_shortcut("G", lambda e: self._go_extreme(bottom=True))

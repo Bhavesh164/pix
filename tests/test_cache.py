@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest import mock
 
 import main as pix_main
-from core.thumb_cache import ThumbCache, format_clear_message
+from core.thumb_cache import ThumbCache, format_clear_message, format_wipe_all_message
 from overlays.help_overlay import HELP_TEXT
 
 
@@ -56,6 +56,33 @@ class CacheTests(unittest.TestCase):
             self.assertFalse(root_cache.exists())
             self.assertTrue(nested_cache.exists())
 
+    def test_wipe_all_recreates_cache_directory(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cache = ThumbCache(Path(tmpdir))
+            cache.cache_dir = Path(tmpdir) / "cache"
+            cache.cache_dir.mkdir()
+            (cache.cache_dir / "thumb.webp").write_bytes(b"thumb")
+
+            cache.wipe_all()
+
+            self.assertTrue(cache.cache_dir.exists())
+            self.assertEqual([], list(cache.cache_dir.iterdir()))
+
+    def test_wipe_all_falls_back_to_in_place_delete(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            photos_dir = Path(tmpdir) / "photos"
+            photos_dir.mkdir()
+            cache = ThumbCache(photos_dir)
+            cache.cache_dir = Path(tmpdir) / "cache"
+            cache.cache_dir.mkdir()
+            (cache.cache_dir / "thumb.webp").write_bytes(b"thumb")
+
+            with mock.patch("pathlib.Path.replace", side_effect=OSError("busy")):
+                cache.wipe_all()
+
+            self.assertTrue(cache.cache_dir.exists())
+            self.assertEqual([], list(cache.cache_dir.iterdir()))
+
     @mock.patch("sys.stdout", new_callable=io.StringIO)
     def test_cli_clear_cache_prints_result(self, stdout):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -74,6 +101,9 @@ class CacheTests(unittest.TestCase):
     def test_help_overlay_documents_purge_cache_shortcut(self):
         self.assertIn("│  c / C     purge thumbnail cache │", HELP_TEXT)
 
+    def test_help_overlay_documents_purge_entire_cache_shortcut(self):
+        self.assertIn("│  x         purge entire cache    │", HELP_TEXT)
+
     def test_help_overlay_documents_multi_select_shortcuts(self):
         self.assertIn("│  A         select all            │", HELP_TEXT)
         self.assertIn("│  U         deselect all          │", HELP_TEXT)
@@ -86,6 +116,12 @@ class CacheTests(unittest.TestCase):
         self.assertEqual(
             "Cleared 2 cached thumbnails for ~/photos (cache: ~/.cache/pix).",
             format_clear_message(2, location, Path.home() / ".cache" / "pix"),
+        )
+
+    def test_format_wipe_all_message_includes_cache_dir(self):
+        self.assertEqual(
+            "Cleared entire thumbnail cache (cache: ~/.cache/pix).",
+            format_wipe_all_message(Path.home() / ".cache" / "pix"),
         )
 
 

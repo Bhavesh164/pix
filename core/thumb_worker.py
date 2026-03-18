@@ -36,6 +36,7 @@ class ThumbWorker:
                     img = img.convert('RGB')
                     
                 # Store in cache
+                cache_path.parent.mkdir(parents=True, exist_ok=True)
                 img.save(cache_path, format="WEBP")
                 
                 # Return a copy to avoid passing closed image referencing file

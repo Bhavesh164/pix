@@ -91,6 +91,7 @@ class ImageView(tk.Frame):
         self._bind_shortcut("/", lambda e: self._show_search())
         self._bind_shortcut("c", lambda e: self.app.clear_cache())
         self._bind_shortcut("C", lambda e: self.app.clear_cache())
+        self._bind_shortcut("x", lambda e: self.app.clear_entire_cache())
 
     def _bind_shortcut(self, sequence, handler):
         self.bind(sequence, handler)

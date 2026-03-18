@@ -1,7 +1,7 @@
 import tkinter as tk
 from pathlib import Path
 from core.image_loader import ImageLoader
-from core.thumb_cache import ThumbCache, format_clear_message
+from core.thumb_cache import ThumbCache, format_clear_message, format_wipe_all_message
 from core.wallpaper import set_wallpaper
 from views.thumbnail_view import ThumbnailView
 from views.image_view import ImageView
@@ -79,6 +79,13 @@ class PixApp:
                 self.thumb_cache.master_path,
                 self.thumb_cache.cache_dir,
             ),
+            duration_ms=3500,
+        )
+
+    def clear_entire_cache(self):
+        self.thumb_cache.wipe_all()
+        self._show_toast(
+            format_wipe_all_message(self.thumb_cache.cache_dir),
             duration_ms=3500,
         )
 

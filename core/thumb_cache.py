@@ -1,14 +1,15 @@
-import os
 import hashlib
 from pathlib import Path
 import shutil
+from uuid import uuid4
 from core.image_loader import ImageLoader
+
 
 class ThumbCache:
     def __init__(self, master_path: Path):
         self.cache_dir = Path.home() / '.cache' / 'pix'
         self.cache_dir.mkdir(parents=True, exist_ok=True)
-        self.master_path = master_path
+        self.master_path = Path(master_path).expanduser().resolve()
         
     def get_cache_path(self, filepath: Path) -> Path:
         mtime = filepath.stat().st_mtime
@@ -28,9 +29,22 @@ class ThumbCache:
         return removed
         
     def wipe_all(self):
-        if self.cache_dir.exists():
-            shutil.rmtree(self.cache_dir)
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        detached_cache_dir = self.cache_dir.with_name(f"{self.cache_dir.name}.purge-{uuid4().hex}")
+
+        try:
+            # Move the active cache out of the way first so concurrent thumbnail
+            # writers immediately target a fresh directory instead of racing rmtree.
+            self.cache_dir.replace(detached_cache_dir)
+        except FileNotFoundError:
             self.cache_dir.mkdir(parents=True, exist_ok=True)
+            return
+        except OSError:
+            self._wipe_in_place()
+            return
+
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        shutil.rmtree(detached_cache_dir, ignore_errors=True)
 
     def _iter_image_paths(self, recursive=False):
         if self.master_path.is_file():
@@ -39,6 +53,18 @@ class ThumbCache:
 
         loader = ImageLoader(self.master_path, recursive=recursive)
         return loader.load_images()
+
+    def _wipe_in_place(self):
+        for child in list(self.cache_dir.iterdir()):
+            try:
+                if child.is_dir():
+                    shutil.rmtree(child, ignore_errors=True)
+                else:
+                    child.unlink()
+            except FileNotFoundError:
+                continue
+
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
 
 
 def format_clear_message(removed_count: int, location: Path | None = None, cache_dir: Path | None = None) -> str:
@@ -49,6 +75,10 @@ def format_clear_message(removed_count: int, location: Path | None = None, cache
     if cache_dir is not None:
         message = f"{message[:-1]} (cache: {_display_location(cache_dir)})."
     return message
+
+
+def format_wipe_all_message(cache_dir: Path) -> str:
+    return f"Cleared entire thumbnail cache (cache: {_display_location(cache_dir)})."
 
 
 def _display_location(path: Path) -> str:
