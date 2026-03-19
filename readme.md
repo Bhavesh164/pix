@@ -4,25 +4,39 @@
 
 ## Screenshots
 
-Click any screenshot to open the full-size image.
+Click any card to open the full-size screenshot.
 
-<p align="center">
-  <a href="assets/grid_view.png">
-    <img src="assets/grid_view.png" alt="Thumbnail Grid View" width="32%" />
-  </a>
-  <a href="assets/search_overlay.png">
-    <img src="assets/search_overlay.png" alt="Fuzzy Search Overlay" width="32%" />
-  </a>
-  <a href="assets/image_view.png">
-    <img src="assets/image_view.png" alt="Full Image View" width="32%" />
-  </a>
-</p>
-
-<p align="center">
-  <strong>Grid View</strong> |
-  <strong>Fuzzy Search</strong> |
-  <strong>Image View</strong>
-</p>
+<table>
+  <tr>
+    <td width="33%" align="center" valign="top">
+      <a href="assets/showcase-grid-view-v2.png">
+        <img src="assets/showcase-grid-view-v2.png" alt="Grid View screenshot" width="100%" />
+      </a>
+      <br />
+      <strong>Grid View</strong>
+      <br />
+      Dense browsing with fast keyboard focus and wallpaper-first presentation.
+    </td>
+    <td width="33%" align="center" valign="top">
+      <a href="assets/showcase-fuzzy-search-v2.png">
+        <img src="assets/showcase-fuzzy-search-v2.png" alt="Fuzzy Search screenshot" width="100%" />
+      </a>
+      <br />
+      <strong>Fuzzy Search</strong>
+      <br />
+      Search floats over the canvas so you stay inside the gallery while jumping fast.
+    </td>
+    <td width="33%" align="center" valign="top">
+      <a href="assets/showcase-image-view-v2.png">
+        <img src="assets/showcase-image-view-v2.png" alt="Image View screenshot" width="100%" />
+      </a>
+      <br />
+      <strong>Image View</strong>
+      <br />
+      Full-screen viewing keeps the artwork front and center with overlays on demand.
+    </td>
+  </tr>
+</table>
 
 ---
 
