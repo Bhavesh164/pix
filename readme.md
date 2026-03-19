@@ -4,14 +4,25 @@
 
 ## Screenshots
 
-### Grid View
-![Thumbnail Grid View](assets/grid_view.png)
+Click any screenshot to open the full-size image.
 
-### Fuzzy Search
-![Fuzzy Search Overlay](assets/search_overlay.png)
+<p align="center">
+  <a href="assets/grid_view.png">
+    <img src="assets/grid_view.png" alt="Thumbnail Grid View" width="32%" />
+  </a>
+  <a href="assets/search_overlay.png">
+    <img src="assets/search_overlay.png" alt="Fuzzy Search Overlay" width="32%" />
+  </a>
+  <a href="assets/image_view.png">
+    <img src="assets/image_view.png" alt="Full Image View" width="32%" />
+  </a>
+</p>
 
-### Image View
-![Full Image View](assets/image_view.png)
+<p align="center">
+  <strong>Grid View</strong> |
+  <strong>Fuzzy Search</strong> |
+  <strong>Image View</strong>
+</p>
 
 ---
 
@@ -58,10 +69,13 @@ chmod +x build.sh
 ./build.sh
 ```
 
-**Alternatively, you can run the build command manually:**
+**If you want to run the PyInstaller steps manually:**
 ```bash
 pyinstaller -y pix.spec
+pyinstaller -y pix_cli.spec
 ```
+
+Use `./build.sh` if you also want it to generate the `dist/pix` launcher wrapper for you.
 
 Build outputs:
 - `dist/pix.app` — GUI app bundle for Finder / DMG distribution
@@ -109,20 +123,20 @@ If `dist/pix.app` does not exist yet, `build_dmg.sh` will run `./build.sh` for y
 
 ### Launch Modes
 
-Run `pix` from the terminal by passing an image or directory:
+Run `pix` from the terminal by passing an image or directory. If you have not installed it into your `PATH` yet, use `dist/pix` in the examples below instead.
 
 ```bash
 # Flat load a directory (shows thumbnail grid)
-./pix ./photos
+pix ./photos
 
 # Recursive load (all subdirectories)
-./pix -r ./photos
+pix -r ./photos
 
 # Single image mode (opens directly to full image view, without grid)
-./pix ./photo.jpg
+pix ./photo.jpg
 
 # Set a single image as wallpaper and exit
-./pix --set-wallpaper ./photo.jpg
+pix --set-wallpaper ./photo.jpg
 ```
 
 ### Keybindings
@@ -153,19 +167,13 @@ Run `pix` from the terminal by passing an image or directory:
 ---
 
 **Image View (Full Image Mode)**
-- `q` : Go back to the thumbnail grid
+- `q` / `Esc` : Go back to the thumbnail grid, or quit if `pix` was launched with a single image
 - `h` / `l` : Previous / Next image
 - `b` : Set the current image as the desktop wallpaper
-- `+` / `-` : Zoom in / out (10% steps)
-- `0` : Reset zoom (fit to window)
-- `W` / `H` : Fit to width / height
-- `Mouse scroll` : Zoom in/out at the cursor position
-- `Mouse drag` : Pan when zoomed in
+- `i` / `o` : Zoom in / out (10% steps)
+- `u` : Reset zoom (fit to window)
 - `w` `a` `s` `d` : Pan (up, left, down, right) when zoomed in
-- `v` : Enter region-select mode
-  - `Enter` (while in region mode): Zoom into the selected region
-  - `Esc`: Cancel region select
-- `d` : Delete current image (opens confirmation overlay)
+- `Up` / `Down` : Pan up / down when zoomed in
 
 ### Cache Management
 
@@ -173,13 +181,13 @@ Run `pix` from the terminal by passing an image or directory:
 
 ```bash
 # Purge cache strictly for a specific folder, then exit
-./pix --clear-cache ./photos
+pix --clear-cache ./photos
 
 # Purge cache for a recursive scan of the current directory, then exit
-./pix -r --clear-cache .
+pix -r --clear-cache .
 
 # Set wallpaper directly from the binary, then exit
-./pix --set-wallpaper ./photo.jpg
+pix --set-wallpaper ./photo.jpg
 ```
 
 Inside the app, `x` clears the entire `~/.cache/pix` directory.
