@@ -14,6 +14,7 @@ HELP_TEXT = """
 │  Space     select                │
 │  A         select all            │
 │  U         deselect all          │
+│  y         copy selected         │
 │  d         delete selected       │
 │  b         set as wallpaper      │
 │                                  │

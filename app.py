@@ -1,5 +1,6 @@
 import tkinter as tk
 from pathlib import Path
+from core.clipboard import copy_paths
 from core.image_loader import ImageLoader
 from core.thumb_cache import ThumbCache, format_clear_message, format_wipe_all_message
 from core.wallpaper import set_wallpaper
@@ -70,6 +71,11 @@ class PixApp:
         """Set the desktop wallpaper on macOS and show a brief toast."""
         success, message = set_wallpaper(image_path)
         self._show_toast(message)
+
+    def copy_images(self, image_paths):
+        success, message = copy_paths(image_paths, clipboard_owner=self.root)
+        self._show_toast(message, duration_ms=3500 if not success else 2500)
+        return success
 
     def clear_cache(self):
         removed = self.thumb_cache.clear(recursive=self.recursive)

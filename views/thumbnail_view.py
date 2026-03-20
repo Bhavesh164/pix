@@ -111,6 +111,7 @@ class ThumbnailView(tk.Frame):
         self._bind_shortcut("U", lambda e: self._clear_selection())
         self._bind_shortcut("V", lambda e: self._select_all())
         self._bind_shortcut("d", lambda e: self._delete_selected())
+        self._bind_shortcut("y", lambda e: self._copy_selected())
         self._bind_shortcut("q", lambda e: self.app.quit())
         self._bind_shortcut("<Escape>", lambda e: self.app.quit())
         self._bind_shortcut("?", lambda e: self._show_help())
@@ -205,12 +206,19 @@ class ThumbnailView(tk.Frame):
     def _open_image(self):
         self.app.switch_to_image_view(self.images[self.selected_index], self.selected_index)
 
+    def _selected_image_paths(self):
+        selected_indexes = sorted(self.multi_selected) if self.multi_selected else [self.selected_index]
+        return [self.images[idx] for idx in selected_indexes]
+
     def _toggle_select(self):
         if self.selected_index in self.multi_selected:
             self.multi_selected.remove(self.selected_index)
         else:
             self.multi_selected.add(self.selected_index)
         self.canvas.itemconfig(self.items[self.selected_index]['rect_id'], outline=self._get_outline_color(self.selected_index))
+
+    def _copy_selected(self):
+        self.app.copy_images(self._selected_image_paths())
         
     def _select_all(self):
         if len(self.multi_selected) == len(self.images):
