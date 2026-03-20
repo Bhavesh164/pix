@@ -46,6 +46,9 @@ class ClipboardTests(unittest.TestCase):
     def test_help_overlay_documents_copy_shortcut(self):
         self.assertIn("│  y         copy selected         │", HELP_TEXT)
 
+    def test_help_overlay_documents_image_view_copy_shortcut(self):
+        self.assertIn("│  y         copy image            │", HELP_TEXT)
+
 
 if __name__ == "__main__":
     unittest.main()

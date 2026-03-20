@@ -87,6 +87,7 @@ class ImageView(tk.Frame):
         self._bind_shortcut("<Up>", lambda e: self._pan(0, -50))
         self._bind_shortcut("<Down>", lambda e: self._pan(0, 50))
         self._bind_shortcut("b", lambda e: self.app.set_wallpaper(self.image_path))
+        self._bind_shortcut("y", lambda e: self._copy_image())
         self._bind_shortcut("?", lambda e: self._show_help())
         self._bind_shortcut("/", lambda e: self._show_search())
         self._bind_shortcut("c", lambda e: self.app.clear_cache())
@@ -106,6 +107,9 @@ class ImageView(tk.Frame):
         from overlays.search_overlay import SearchOverlay
         ov = SearchOverlay(self, self.app, self.images)
         ov.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
+    def _copy_image(self):
+        self.app.copy_images([self.image_path])
         
     def _move(self, delta):
         new_idx = self.index + delta

@@ -25,6 +25,7 @@ HELP_TEXT = """
 │  w a s d   pan image (zoom)      │
 │  ↑ ↓       pan up/down (zoom)    │
 │  h l       prev/next             │
+│  y         copy image            │
 │  b         set as wallpaper      │
 │                                  │
 │                   Esc to close   │

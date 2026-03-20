@@ -45,6 +45,7 @@ Click any card to open the full-size screenshot.
 - **Vim-style Keybindings**: Keyboard-first navigation.
 - **Fast Thumbnail Loading**: Extracts embedded EXIF thumbnails for near-instant loading and uses a persistent disk cache for subsequent loads.
 - **Fuzzy Search**: Quickly search for images by filename using an overlay search bar.
+- **Clipboard Copy**: Copy the selected images from grid view or the current image from single-image view with `y`.
 - **Universal Overlays**: Help sheets, search, and confirmation dialogues all float directly on the image canvas.
 
 ---
@@ -170,6 +171,7 @@ pix --set-wallpaper ./photo.jpg
 - `A` : Select all images
 - `U` : Deselect all images
 - `V` : Select all images
+- `y` : Copy selected images to the clipboard
 - `b` : Set the selected image as the desktop wallpaper
 - `d` : Delete selected images (opens confirmation overlay)
 - `Ctrl+d` / `Ctrl+u` : Scroll grid down / up
@@ -183,6 +185,7 @@ pix --set-wallpaper ./photo.jpg
 **Image View (Full Image Mode)**
 - `q` / `Esc` : Go back to the thumbnail grid, or quit if `pix` was launched with a single image
 - `h` / `l` : Previous / Next image
+- `y` : Copy the current image to the clipboard
 - `b` : Set the current image as the desktop wallpaper
 - `i` / `o` : Zoom in / out (10% steps)
 - `u` : Reset zoom (fit to window)
