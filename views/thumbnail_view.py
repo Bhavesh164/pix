@@ -2,6 +2,17 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from core.thumb_worker import ThumbWorker
 
+
+def _scroll_fraction_for_item(target_y, item_height, content_height, viewport_height, current_top, current_bottom):
+    if content_height <= max(0, viewport_height):
+        return 0.0
+    if target_y < current_top:
+        return max(0.0, target_y / content_height)
+    if target_y + item_height > current_bottom:
+        return max(0.0, (target_y + item_height - viewport_height) / content_height)
+    return None
+
+
 class ThumbnailView(tk.Frame):
     def __init__(self, parent, app, images, thumb_cache):
         super().__init__(parent, bg='black')
@@ -82,7 +93,8 @@ class ThumbnailView(tk.Frame):
         margin = max(0, (width - (self.cols * item_w)) // 2)
         
         rows = (len(self.images) + self.cols - 1) // self.cols
-        self.canvas.configure(scrollregion=(0, 0, self.cols * item_w + margin * 2, rows * item_h))
+        content_height = rows * item_h
+        self.canvas.configure(scrollregion=(0, 0, self.cols * item_w + margin * 2, content_height))
         
         for i, item in enumerate(self.items):
             row = i // self.cols
@@ -94,6 +106,9 @@ class ThumbnailView(tk.Frame):
             self.canvas.coords(item['rect_id'], x - item_w//2 + 2, y - item_h//2 + 2, x + item_w//2 - 2, y + item_h//2 - 2)
             self.canvas.coords(item['img_id'], x, y - 8)
             self.canvas.coords(item['text_id'], x, y + item_h//2 - 6)
+
+        if not self._has_vertical_overflow():
+            self.canvas.yview_moveto(0)
             
     def _bind_keys(self):
         self.focus_set()
@@ -134,6 +149,10 @@ class ThumbnailView(tk.Frame):
         self.canvas.bind(sequence, handler)
         
     def _on_mousewheel(self, event):
+        if not self._has_vertical_overflow():
+            self.canvas.yview_moveto(0)
+            return
+
         if hasattr(event, "num") and event.num == 4 or hasattr(event, "delta") and event.delta > 0:
             self.canvas.yview_scroll(-1, "units")
         elif hasattr(event, "num") and event.num == 5 or hasattr(event, "delta") and event.delta < 0:
@@ -175,6 +194,41 @@ class ThumbnailView(tk.Frame):
         from overlays.search_overlay import SearchOverlay
         ov = SearchOverlay(self, self.app, self.images)
         ov.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
+    def _content_height(self):
+        rows = (len(self.images) + self.cols - 1) // self.cols
+        return rows * (self.thumb_size + 34)
+
+    def _has_vertical_overflow(self):
+        return self._content_height() > max(1, self.canvas.winfo_height())
+
+    def _ensure_selected_visible(self):
+        item_h = self.thumb_size + 34
+        content_height = self._content_height()
+        viewport_height = self.canvas.winfo_height()
+        target_y = (self.selected_index // self.cols) * item_h
+
+        scroll_fraction = _scroll_fraction_for_item(
+            target_y,
+            item_h,
+            content_height,
+            viewport_height,
+            self.canvas.yview()[0] * content_height,
+            self.canvas.yview()[1] * content_height,
+        )
+        if scroll_fraction is not None:
+            self.canvas.yview_moveto(scroll_fraction)
+
+    def set_selected_index(self, index):
+        if not (0 <= index < len(self.images)) or index == self.selected_index:
+            self._ensure_selected_visible()
+            return
+
+        old_idx = self.selected_index
+        self.selected_index = index
+        self.canvas.itemconfig(self.items[old_idx]['rect_id'], outline=self._get_outline_color(old_idx))
+        self.canvas.itemconfig(self.items[self.selected_index]['rect_id'], outline=self._get_outline_color(self.selected_index))
+        self._ensure_selected_visible()
         
     def _move(self, delta):
         new_idx = self.selected_index + delta
@@ -185,23 +239,7 @@ class ThumbnailView(tk.Frame):
             self.canvas.itemconfig(self.items[old_idx]['rect_id'], outline=self._get_outline_color(old_idx))
             # highlight new
             self.canvas.itemconfig(self.items[self.selected_index]['rect_id'], outline=self._get_outline_color(self.selected_index))
-            
-            row = self.selected_index // self.cols
-            item_h = self.thumb_size + 34
-            target_y = row * item_h
-            
-            bbox = self.canvas.bbox("all")
-            if bbox:
-                total_h = bbox[3]
-                h = self.canvas.winfo_height()
-                if total_h > 0:
-                    current_top = self.canvas.yview()[0] * total_h
-                    current_bottom = self.canvas.yview()[1] * total_h
-                    
-                    if target_y < current_top:
-                        self.canvas.yview_moveto(target_y / total_h)
-                    elif target_y + item_h > current_bottom:
-                        self.canvas.yview_moveto((target_y + item_h - h) / total_h)
+            self._ensure_selected_visible()
                 
     def _open_image(self):
         self.app.switch_to_image_view(self.images[self.selected_index], self.selected_index)

@@ -50,6 +50,8 @@ class PixApp:
             
         if not hasattr(self, 'thumb_view_instance'):
             self.thumb_view_instance = ThumbnailView(self.container, self, self.images, self.thumb_cache)
+        elif hasattr(self, 'image_view_instance') and self.image_view_instance:
+            self.thumb_view_instance.set_selected_index(self.image_view_instance.index)
             
         self.active_view = self.thumb_view_instance
         self.active_view.pack(fill=tk.BOTH, expand=True)
