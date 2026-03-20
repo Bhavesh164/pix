@@ -48,7 +48,7 @@ def _set_wallpaper_macos(image_path: Path) -> tuple[bool, str]:
 
 def _set_wallpaper_macos_store(image_path: Path) -> tuple[bool, str]:
     try:
-        from core.macos_wallpaper import set_wallpaper as set_wallpaper_store
+        from .macos_wallpaper import set_wallpaper as set_wallpaper_store
     except Exception as exc:
         return False, f"Tahoe wallpaper store unavailable: {exc}"
 

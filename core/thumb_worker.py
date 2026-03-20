@@ -1,21 +1,34 @@
+from __future__ import annotations
+
 import concurrent.futures
-from PIL import Image, ImageOps
 from pathlib import Path
+from typing import Any, Callable
+
+from PIL import Image, ImageOps  # pyre-ignore
+
+
+ThumbnailCallback = Callable[[Path, Any], None]
 
 class ThumbWorker:
-    def __init__(self, cache_manager, num_workers=4, thumb_size=(160, 160)):
+    def __init__(
+        self,
+        cache_manager: Any,
+        num_workers: int = 4,
+        thumb_size: tuple[int, int] = (160, 160),
+    ) -> None:
         self.cache_manager = cache_manager
         self.pool = concurrent.futures.ThreadPoolExecutor(max_workers=num_workers)
         self.thumb_size = thumb_size
         
-    def generate_thumbnail(self, image_path: Path):
+    def generate_thumbnail(self, image_path: Path) -> Any:
         cache_path = self.cache_manager.get_cache_path(image_path)
         
         # Layer 3: Cache read
         if cache_path.exists():
             try:
                 # Return cached image instantly
-                return Image.open(cache_path).copy()
+                with Image.open(cache_path) as cached_image:
+                    return cached_image.copy()
             except Exception:
                 pass
                 
@@ -45,9 +58,10 @@ class ThumbWorker:
             print(f"Error making thumbnail for {image_path}: {e}")
             # return a blank image on failure
             return Image.new('RGB', self.thumb_size, color='gray')
-            
-    def request_thumbnail(self, image_path: Path, callback):
-        def worker():
-            thumb = self.generate_thumbnail(image_path)
-            callback(image_path, thumb)
-        self.pool.submit(worker)
+
+    def _dispatch_thumbnail(self, image_path: Path, callback: ThumbnailCallback) -> None:
+        thumb = self.generate_thumbnail(image_path)
+        callback(image_path, thumb)
+
+    def request_thumbnail(self, image_path: Path, callback: ThumbnailCallback) -> None:
+        self.pool.submit(self._dispatch_thumbnail, image_path, callback)  # pyre-ignore[6]
