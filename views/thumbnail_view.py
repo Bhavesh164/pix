@@ -107,7 +107,7 @@ class ThumbnailView(tk.Frame):
             self.canvas.coords(item['img_id'], x, y - 8)
             self.canvas.coords(item['text_id'], x, y + item_h//2 - 6)
 
-        if not self._has_vertical_overflow():
+        if self._viewport_ready() and not self._has_vertical_overflow():
             self.canvas.yview_moveto(0)
             
     def _bind_keys(self):
@@ -199,10 +199,20 @@ class ThumbnailView(tk.Frame):
         rows = (len(self.images) + self.cols - 1) // self.cols
         return rows * (self.thumb_size + 34)
 
+    def _viewport_ready(self):
+        return self.winfo_ismapped() and self.canvas.winfo_height() > 1
+
     def _has_vertical_overflow(self):
         return self._content_height() > max(1, self.canvas.winfo_height())
 
     def _ensure_selected_visible(self):
+        if not self._viewport_ready():
+            return
+
+        if not self._has_vertical_overflow():
+            self.canvas.yview_moveto(0)
+            return
+
         item_h = self.thumb_size + 34
         content_height = self._content_height()
         viewport_height = self.canvas.winfo_height()
@@ -218,6 +228,10 @@ class ThumbnailView(tk.Frame):
         )
         if scroll_fraction is not None:
             self.canvas.yview_moveto(scroll_fraction)
+
+    def refresh_layout(self):
+        self._rearrange_grid()
+        self._ensure_selected_visible()
 
     def set_selected_index(self, index):
         if not (0 <= index < len(self.images)) or index == self.selected_index:

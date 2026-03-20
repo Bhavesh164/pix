@@ -50,12 +50,22 @@ class PixApp:
             
         if not hasattr(self, 'thumb_view_instance'):
             self.thumb_view_instance = ThumbnailView(self.container, self, self.images, self.thumb_cache)
-        elif hasattr(self, 'image_view_instance') and self.image_view_instance:
-            self.thumb_view_instance.set_selected_index(self.image_view_instance.index)
             
         self.active_view = self.thumb_view_instance
         self.active_view.pack(fill=tk.BOTH, expand=True)
         self.active_view.focus_set()
+
+        selected_index = None
+        if hasattr(self, 'image_view_instance') and self.image_view_instance:
+            selected_index = self.image_view_instance.index
+
+        def _restore_thumbnail_view():
+            if selected_index is not None:
+                self.thumb_view_instance.set_selected_index(selected_index)
+            self.thumb_view_instance.refresh_layout()
+            self.thumb_view_instance.focus_set()
+
+        self.root.after_idle(_restore_thumbnail_view)
         
     def switch_to_image_view(self, image_path, index):
         if self.active_view:
