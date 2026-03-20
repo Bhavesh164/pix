@@ -35,6 +35,7 @@ rm -rf dist/pix
     echo 'CANDIDATES=('
     echo '    "$SCRIPT_DIR/pix_cli/pix_cli"'
     echo '    "$HOME/Library/Application Support/pix/pix_cli/pix_cli"'
+    echo '    "/Library/Application Support/pix/pix_cli/pix_cli"'
     printf '    "%s"\n' "$BUILD_CLI_PATH"
     echo '    "$SCRIPT_DIR/pix.app/Contents/MacOS/pix"'
     echo '    "/Applications/pix.app/Contents/MacOS/pix"'

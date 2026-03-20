@@ -64,7 +64,7 @@ pip install -r requirements.txt
 
 ---
 
-## How to Build / Generate Binary
+## Build And Install
 
 **OS Prerequisites:**
 This repository now targets macOS only. PyInstaller requires the standard Python `tkinter` GUI bindings to successfully bundle the graphical application.
@@ -74,7 +74,9 @@ This repository now targets macOS only. PyInstaller requires the standard Python
   brew install python-tk
   ```
 
-To generate the macOS app bundle and a fast command-line launcher, you can use the provided build script.
+### Build Outputs
+
+To generate the macOS app bundle and a fast command-line launcher, use the provided build script.
 
 1. Ensure dependencies are installed (including `pyinstaller`).
 2. Run the `build.sh` script:
@@ -96,8 +98,57 @@ Build outputs:
 - `dist/pix.app` — GUI app bundle for Finder / DMG distribution
 - `dist/pix` — fast terminal launcher that can be copied into a directory like `/usr/local/bin`
 - `dist/pix_cli/` — fast CLI runtime used by the launcher
+- `dist/pix.pkg` — macOS installer package that installs both the app and the terminal command
 
-### Install `pix` Into Your PATH
+### Files Responsible For Building And Installing
+
+- `build.sh` — builds `pix.app`, `pix_cli/`, and the lightweight `pix` launcher
+- `pix.spec` — PyInstaller spec for `pix.app`
+- `pix_cli.spec` — PyInstaller spec for the fast CLI runtime
+- `build_pkg.sh` — creates `dist/pix.pkg` and decides the installer payload/locations
+- `build_dmg.sh` — wraps `dist/pix.pkg` into `dist/pix.dmg`
+- `install_pix.sh` — optional direct CLI install without using the DMG installer
+
+### Build A Single Installer Image
+
+If you want a single macOS installer image that installs both `pix.app` and the `pix` terminal command, use:
+
+```bash
+chmod +x build_pkg.sh build_dmg.sh
+./build_dmg.sh
+```
+
+That flow creates:
+
+- `dist/pix.pkg` — the actual installer
+- `dist/pix.dmg` — a disk image that contains `pix.pkg`
+
+Running the installer from the DMG installs:
+
+- `pix.app` into `/Applications`
+- `pix` into `/usr/local/bin`
+- the fast CLI runtime into `/Library/Application Support/pix/pix_cli`
+
+If the build outputs do not exist yet, `build_dmg.sh` runs `./build_pkg.sh` first, and `build_pkg.sh` runs `./build.sh` first if needed.
+
+### Install From Finder
+
+To install from Finder:
+
+1. Double-click `dist/pix.dmg`
+2. In the mounted window, double-click `pix.pkg`
+3. Complete the installer prompts
+
+After installation:
+
+- launch `pix.app` from `/Applications`
+- run `pix` from Terminal
+
+If Terminal does not see `pix` immediately, open a new Terminal window or run `hash -r`.
+
+### Install `pix` Into Your PATH Without The DMG
+
+If you only want the terminal command and do not want to use the package installer, use the helper script:
 
 The `dist/pix` launcher can run from anywhere after you install it into a directory on your `PATH`.
 
@@ -115,22 +166,38 @@ On Apple Silicon Macs, that script prefers `/opt/homebrew/bin`. If `/usr/local/b
 For the launcher to stay fast, keep either `dist/pix_cli/` or `pix.app` available. The launcher checks, in order:
 - `pix_cli/` next to the launcher
 - `~/Library/Application Support/pix/pix_cli/` (used by `install_pix.sh`)
+- `/Library/Application Support/pix/pix_cli/` (used by `pix.pkg`)
 - `pix.app` next to the launcher
 - `/Applications/pix.app`
 - `~/Applications/pix.app`
 
-### How to Build a macOS `.dmg`
+### Fully Uninstall pix
 
-If you want a drag-and-drop macOS installer image, use the bundled DMG helper after `dist/pix.app` has been built:
+If you installed with the DMG/package installer, a full uninstall removes:
+
+- `/Applications/pix.app`
+- `/usr/local/bin/pix`
+- `/Library/Application Support/pix`
+
+If you used `install_pix.sh`, it may also have installed into:
+
+- `~/Library/Application Support/pix`
+- `~/.local/bin/pix`
+- `/opt/homebrew/bin/pix`
+- `~/Applications/pix.app`
+
+To remove all known install locations, run:
 
 ```bash
-chmod +x build_dmg.sh
-./build_dmg.sh
+chmod +x uninstall_pix.sh
+./uninstall_pix.sh
 ```
 
-That script packages `dist/pix.app` into `dist/pix.dmg` and includes an `Applications` shortcut inside the disk image so users can drag `pix.app` into their Applications folder.
+If your installation lives in system locations such as `/Applications`, `/usr/local/bin`, or `/Library/Application Support`, run it with `sudo`:
 
-If `dist/pix.app` does not exist yet, `build_dmg.sh` will run `./build.sh` for you first.
+```bash
+sudo ./uninstall_pix.sh
+```
 
 ---
 

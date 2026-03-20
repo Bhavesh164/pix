@@ -1,13 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
-APP_PATH="dist/pix.app"
+PKG_PATH="dist/pix.pkg"
 DMG_PATH="dist/pix.dmg"
 VOLUME_NAME="pix"
 
-if [ ! -d "$APP_PATH" ]; then
-    echo "Missing $APP_PATH, building app bundle first..."
-    ./build.sh
+if [ ! -f "$PKG_PATH" ]; then
+    echo "Missing $PKG_PATH, building installer package first..."
+    ./build_pkg.sh
 fi
 
 STAGING_DIR="$(mktemp -d "${TMPDIR:-/tmp}/pix-dmg.XXXXXX")"
@@ -18,7 +18,7 @@ cleanup() {
 
 trap cleanup EXIT
 
-cp -R "$APP_PATH" "$STAGING_DIR/"
+cp -R "$PKG_PATH" "$STAGING_DIR/"
 ln -s /Applications "$STAGING_DIR/Applications"
 rm -f "$DMG_PATH"
 
