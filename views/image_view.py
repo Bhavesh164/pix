@@ -93,6 +93,7 @@ class ImageView(tk.Frame):
         self._bind_shortcut("c", lambda e: self.app.clear_cache())
         self._bind_shortcut("C", lambda e: self.app.clear_cache())
         self._bind_shortcut("x", lambda e: self.app.clear_entire_cache())
+        self._bind_shortcut("r", lambda e: self._show_rename())
 
     def _bind_shortcut(self, sequence, handler):
         self.bind(sequence, handler)
@@ -107,6 +108,10 @@ class ImageView(tk.Frame):
         from overlays.search_overlay import SearchOverlay
         ov = SearchOverlay(self, self.app, self.images)
         ov.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
+    def _show_rename(self):
+        from overlays.rename_overlay import RenameOverlay
+        RenameOverlay(self, self.app, self.index).place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
     def _copy_image(self):
         self.app.copy_images([self.image_path])
@@ -148,3 +153,9 @@ class ImageView(tk.Frame):
         self.pan_y = max(-max_pan_y, min(max_pan_y, self.pan_y))
         
         self._render()
+
+    def on_image_renamed(self, index, new_path):
+        if index != self.index:
+            return
+        self.image_path = new_path
+        self._update_status()

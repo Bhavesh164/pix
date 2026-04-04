@@ -89,6 +89,34 @@ class PixApp:
         self._show_toast(message, duration_ms=3500 if not success else 2500)
         return success
 
+    def rename_image(self, index, new_name):
+        current_path = self.images[index]
+        trimmed_name = new_name.strip()
+
+        if not trimmed_name:
+            return False, "Filename cannot be empty.", current_path
+
+        if "/" in trimmed_name or "\\" in trimmed_name:
+            return False, "Filename cannot contain path separators.", current_path
+
+        destination = current_path.with_name(trimmed_name)
+        if destination == current_path:
+            return True, "Filename unchanged.", current_path
+
+        if destination.exists():
+            return False, f"{destination.name} already exists.", current_path
+
+        try:
+            renamed_path = current_path.rename(destination)
+        except OSError as exc:
+            return False, f"Rename failed: {exc}", current_path
+
+        self.images[index] = renamed_path
+        if self.is_single_image:
+            self.target_path = renamed_path
+
+        return True, f"Renamed to {renamed_path.name}.", renamed_path
+
     def clear_cache(self):
         removed = self.thumb_cache.clear(recursive=self.recursive)
         self._show_toast(

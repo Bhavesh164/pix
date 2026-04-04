@@ -139,7 +139,8 @@ class ThumbnailView(tk.Frame):
         self._bind_shortcut("G", lambda e: self._go_extreme(bottom=True))
         self._bind_shortcut("g", self._on_g)
         self._bind_shortcut("b", lambda e: self._set_wallpaper())
-        
+        self._bind_shortcut("r", lambda e: self._show_rename())
+
         self.bind("<MouseWheel>", self._on_mousewheel)
         self.bind("<Button-4>", self._on_mousewheel)
         self.bind("<Button-5>", self._on_mousewheel)
@@ -194,6 +195,10 @@ class ThumbnailView(tk.Frame):
         from overlays.search_overlay import SearchOverlay
         ov = SearchOverlay(self, self.app, self.images)
         ov.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
+    def _show_rename(self):
+        from overlays.rename_overlay import RenameOverlay
+        RenameOverlay(self, self.app, self.selected_index).place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
     def _content_height(self):
         rows = (len(self.images) + self.cols - 1) // self.cols
@@ -299,3 +304,7 @@ class ThumbnailView(tk.Frame):
             ov.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
         except ImportError:
             print(f"Skipping delete of {len(to_delete)} images (confirm_overlay.py missing)")
+
+    def on_image_renamed(self, index, new_path):
+        self.items[index]['path'] = new_path
+        self.canvas.itemconfig(self.items[index]['text_id'], text=new_path.name[-15:])

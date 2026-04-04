@@ -16,6 +16,7 @@ HELP_TEXT = """
 │  U         deselect all          │
 │  y         copy selected         │
 │  d         delete selected       │
+│  r         rename file           │
 │  b         set as wallpaper      │
 │                                  │
 │  IMAGE VIEW                      │
@@ -26,6 +27,7 @@ HELP_TEXT = """
 │  ↑ ↓       pan up/down (zoom)    │
 │  h l       prev/next             │
 │  y         copy image            │
+│  r         rename file           │
 │  b         set as wallpaper      │
 │                                  │
 │                   Esc to close   │
