@@ -239,6 +239,7 @@ pix --set-wallpaper ./photo.jpg
 - `U` : Deselect all images
 - `V` : Select all images
 - `y` : Copy selected images to the clipboard
+- `r` : Rename the selected image
 - `b` : Set the selected image as the desktop wallpaper
 - `d` : Delete selected images (opens confirmation overlay)
 - `Ctrl+d` / `Ctrl+u` : Scroll grid down / up
@@ -253,6 +254,7 @@ pix --set-wallpaper ./photo.jpg
 - `q` / `Esc` : Go back to the thumbnail grid, or quit if `pix` was launched with a single image
 - `h` / `l` : Previous / Next image
 - `y` : Copy the current image to the clipboard
+- `r` : Rename the current image
 - `b` : Set the current image as the desktop wallpaper
 - `i` / `o` : Zoom in / out (10% steps)
 - `u` : Reset zoom (fit to window)
