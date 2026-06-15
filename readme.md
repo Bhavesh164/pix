@@ -146,6 +146,36 @@ After installation:
 
 If Terminal does not see `pix` immediately, open a new Terminal window or run `hash -r`.
 
+### Install From Terminal
+
+If you already built the installer package and want to install or upgrade directly from Terminal, run:
+
+```bash
+sudo installer -pkg /Users/bv/projects/kilo/pix/dist/pix.pkg -target /
+```
+
+That command installs:
+
+- `pix.app` into `/Applications`
+- `pix` into `/usr/local/bin/pix`
+- the bundled runtime into `/Library/Application Support/pix/pix_cli`
+
+If you rebuilt `dist/` recently, make sure `dist/pix.pkg` is fresh before installing so the installed runtime matches the latest `dist/pix` launcher and `dist/pix_cli` build.
+
+To refresh all distributable artifacts before installing, run:
+
+```bash
+bash ./build.sh
+bash ./build_pkg.sh
+bash ./build_dmg.sh
+```
+
+That sequence:
+
+- rebuilds the current app/runtime
+- rebuilds the installer package
+- rebuilds the DMG from the latest package
+
 ### Install `pix` Into Your PATH Without The DMG
 
 If you only want the terminal command and do not want to use the package installer, use the helper script:

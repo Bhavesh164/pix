@@ -83,7 +83,7 @@ class ImageView(tk.Frame):
         self._bind_shortcut("w", lambda e: self._pan(0, -50))
         self._bind_shortcut("a", lambda e: self._pan(-50, 0))
         self._bind_shortcut("s", lambda e: self._pan(0, 50))
-        self._bind_shortcut("d", lambda e: self._pan(50, 0))
+        self._bind_shortcut("d", lambda e: self._delete_current())
         self._bind_shortcut("<Up>", lambda e: self._pan(0, -50))
         self._bind_shortcut("<Down>", lambda e: self._pan(0, 50))
         self._bind_shortcut("b", lambda e: self.app.set_wallpaper(self.image_path))
@@ -112,6 +112,10 @@ class ImageView(tk.Frame):
     def _show_rename(self):
         from overlays.rename_overlay import RenameOverlay
         RenameOverlay(self, self.app, self.index).place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
+    def _delete_current(self):
+        from overlays.confirm_overlay import ConfirmOverlay
+        ConfirmOverlay(self, self.app, [self.index]).place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
     def _copy_image(self):
         self.app.copy_images([self.image_path])
