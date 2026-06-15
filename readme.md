@@ -151,7 +151,7 @@ If Terminal does not see `pix` immediately, open a new Terminal window or run `h
 If you already built the installer package and want to install or upgrade directly from Terminal, run:
 
 ```bash
-sudo installer -pkg /Users/bv/projects/kilo/pix/dist/pix.pkg -target /
+sudo installer -pkg "$HOME/projects/kilo/pix/dist/pix.pkg" -target /
 ```
 
 That command installs:
